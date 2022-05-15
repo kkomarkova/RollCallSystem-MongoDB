@@ -19,19 +19,9 @@ public class User
     [BsonElement("role")]
     public string Role { get; set; }
     [BsonElement("subjects")]
-    public List<UserSubjects> Subjects { get; set; }
+    [BsonRepresentation(BsonType.ObjectId)]
+    public List<string> Subjects { get; set; }
     [BsonElement("trophies")]
-    public List<UserTrophies> Trophies { get; set; }
-}
-public class UserSubjects
-{
-    [BsonId]
     [BsonRepresentation(BsonType.ObjectId)]
-    public string Id { get; set; }
-}
-public class UserTrophies
-{
-    [BsonId]
-    [BsonRepresentation(BsonType.ObjectId)]
-    public string Id { get; set; }
+    public List<string> Trophies { get; set; }
 }
