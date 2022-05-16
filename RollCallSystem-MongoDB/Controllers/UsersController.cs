@@ -11,7 +11,7 @@ public class UsersController : ControllerBase
 {
     private readonly UsersService _UsersService;
 
-    public UsersController(UsersService UsersService) =>
+    public UsersController(UsersService UsersService) => 
         _UsersService = UsersService;
 
     [HttpGet]

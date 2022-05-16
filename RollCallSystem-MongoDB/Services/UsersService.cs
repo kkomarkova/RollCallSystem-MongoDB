@@ -27,6 +27,9 @@ namespace RollCallSystem_MongoDB.Services
         public async Task<User?> GetAsync(string id) =>
             await _UsersCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
 
+        public async Task<User?> GetAsyncLogin(string email, string password) =>
+            await _UsersCollection.Find(x => x.Email == email && x.Password == password).FirstOrDefaultAsync();
+
         public async Task CreateAsync(User newUser) =>
             await _UsersCollection.InsertOneAsync(newUser);
 

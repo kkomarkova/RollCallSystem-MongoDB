@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using RollCallSystem_MongoDB.Models;
+using RollCallSystem_MongoDB.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -14,12 +15,12 @@ namespace RollCallSystem_MongoDB.Controllers
     public class JWTTokenController : ControllerBase
     {
         public IConfiguration _configuration;
-        public readonly ApplicationDbContext _context;
+        private readonly UsersService _UsersService;
 
-        public JWTTokenController(IConfiguration configuration, ApplicationDbContext context)
+        public JWTTokenController(IConfiguration configuration, UsersService UsersService)
         {
             _configuration = configuration;
-            _context = context;
+            _UsersService = UsersService;
         }
 
         [HttpPost]
@@ -35,26 +36,29 @@ namespace RollCallSystem_MongoDB.Controllers
 
                 var userData = await GetUser(user.Email, user.Password);
                 var jwt = _configuration.GetSection("Jwt").Get<Jwt>();
-                if (user != null)
+                if (userData != null)
                 {
                     var claims = new List<Claim>()
                     {
                         new Claim(JwtRegisteredClaimNames.Sub, jwt.Subject),
                         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                         new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
-                        new Claim("Id", user.Id.ToString()),
-                        new Claim("Email", user.Email),
-                        new Claim("Password", user.Password)
+                        new Claim("Id", userData.Id.ToString()),
+                        new Claim("Email", userData.Email),
+                        new Claim("Password", userData.Password)
                     };
 
                     //Get all roles from the database (i.e. Teacher, Student)
-                    var roles = await _context.Roles.ToListAsync();
+                    var roles = new List<string>()
+                    {
+                        "Student", "Teacher", "Admin"
+                    };
                     if (roles == null) return NoContent();
 
                     try
                     {
                         //Get the first role from my role list which I got above, that matches the roleId of the user that has logged in
-                        claims.Add(new Claim(ClaimTypes.Role, roles.FirstOrDefault(x => x.Id == userData.RoleId).Name));
+                        claims.Add(new Claim(ClaimTypes.Role, roles.FirstOrDefault(x => x == userData.Role)));
 
                         //For ease of access (I don't know how to access the named ones set above lol), I store the user Id in the name type since we're not using that one
                         //If anyone figures out how to access the Claim("Id") later, please let me know <3 <3
@@ -91,8 +95,7 @@ namespace RollCallSystem_MongoDB.Controllers
 
         private async Task<User> GetUser(string userEmail, string userPassword)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Email == userEmail && u.Password == userPassword);
+            return await _UsersService.GetAsyncLogin(userEmail, userPassword);
         }
     }
-}
 }
