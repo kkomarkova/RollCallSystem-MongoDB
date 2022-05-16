@@ -61,8 +61,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 
 builder.Services.AddSingleton<UsersService>();
 builder.Services.AddSingleton<TrophiesService>();
-builder.Services.AddSingleton<LessonsService>();
 builder.Services.AddSingleton<SubjectsService>();
+builder.Services.AddSingleton<LessonsService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

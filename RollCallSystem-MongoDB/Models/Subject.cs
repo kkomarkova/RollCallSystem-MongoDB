@@ -10,8 +10,9 @@ public class Subject
     [BsonElement("name")]
     public string Name { get; set; }
 
-    [BsonElement("Teacher_id")]
-    public int Teacher_id { get; set; }
+    [BsonElement("teacher_id")]
+    [BsonRepresentation(BsonType.ObjectId)]
+    public string Teacher_id { get; set; }
 
     [BsonElement("students")]
     [BsonRepresentation(BsonType.ObjectId)]

@@ -21,7 +21,7 @@ public class User
     [BsonElement("subjects")]
     [BsonRepresentation(BsonType.ObjectId)]
     public List<string> Subjects { get; set; }
-    [BsonElement("Lessons")]
+    [BsonElement("trophies")]
     [BsonRepresentation(BsonType.ObjectId)]
-    public List<string> Lessons { get; set; }
+    public List<string> Trophies { get; set; }
 }
