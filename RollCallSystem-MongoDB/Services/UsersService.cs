@@ -21,14 +21,29 @@ namespace RollCallSystem_MongoDB.Services
                 RollCallDatabaseSettings.Value.UsersCollectionName);
         }
 
+        public async Task<List<User>> GetStudentsAsync() =>
+            await _UsersCollection.Find(x => x.Role == "Student").ToListAsync();
+        
+        public async Task<List<User>> GetTeachersAsync() =>
+            await _UsersCollection.Find(x => x.Role == "Teacher").ToListAsync();
+
         public async Task<List<User>> GetAsync() =>
             await _UsersCollection.Find(_ => true).ToListAsync();
 
         public async Task<User?> GetAsync(string id) =>
             await _UsersCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
 
+        public async Task<User?> GetByEmailAsync(string email) =>
+            await _UsersCollection.Find(x => x.Email == email).FirstOrDefaultAsync();
+
         public async Task<User?> GetAsyncLogin(string email, string password) =>
             await _UsersCollection.Find(x => x.Email == email && x.Password == password).FirstOrDefaultAsync();
+
+        public async Task<string?> GetSaltAsync(string email)
+        {
+            User user = await _UsersCollection.Find(x => x.Email == email).FirstOrDefaultAsync();
+            return user?.Salt;
+        }            
 
         public async Task CreateAsync(User newUser) =>
             await _UsersCollection.InsertOneAsync(newUser);

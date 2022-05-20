@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using RollCallSystem_MongoDB.Models;
 using RollCallSystem_MongoDB.Services;
@@ -33,6 +34,10 @@ namespace RollCallSystem_MongoDB.Controllers
                     Email = loginUser.Email,
                     Password = loginUser.Password,
                 };
+
+                string? salt = await GetSalt(user.Email);
+                if (salt == null) return NotFound();
+                user.Password = HashPasswordWithSalt(salt, loginUser.Password);
 
                 var userData = await GetUser(user.Email, user.Password);
                 var jwt = _configuration.GetSection("Jwt").Get<Jwt>();
@@ -96,6 +101,25 @@ namespace RollCallSystem_MongoDB.Controllers
         private async Task<User> GetUser(string userEmail, string userPassword)
         {
             return await _UsersService.GetAsyncLogin(userEmail, userPassword);
+        }
+
+        private async Task<string?> GetSalt(string userEmail)
+        {
+            return await _UsersService.GetSaltAsync(userEmail);
+        }
+
+        private string HashPasswordWithSalt(string salt, string password)
+        {
+            byte[] saltByte = Encoding.UTF8.GetBytes(salt);
+            password += "pepper123";
+            string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                password: password,
+                salt: saltByte,
+                prf: KeyDerivationPrf.HMACSHA256,
+                iterationCount: 1000,
+                numBytesRequested: 32));
+            Console.WriteLine(hashed);
+            return hashed;
         }
     }
 }

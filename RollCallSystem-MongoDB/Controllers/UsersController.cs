@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RollCallSystem_MongoDB.Models;
 using RollCallSystem_MongoDB.Services;
@@ -18,6 +19,14 @@ public class UsersController : ControllerBase
     public async Task<List<User>> Get() =>
         await _UsersService.GetAsync();
 
+    [HttpGet("Students")]
+    public async Task<List<User>> GetStudents() =>
+        await _UsersService.GetStudentsAsync();
+
+    [HttpGet("Teachers")]
+    public async Task<List<User>> GetTeachers() =>
+        await _UsersService.GetTeachersAsync();
+
     [HttpGet("{id:length(24)}")]
     public async Task<ActionResult<User>> Get(string id)
     {
@@ -31,7 +40,21 @@ public class UsersController : ControllerBase
         return User;
     }
 
+    [HttpGet("{email}")]
+    public async Task<ActionResult<User>> GetByEmail(string email)
+    {
+        var User = await _UsersService.GetByEmailAsync(email);
+
+        if (User is null)
+        {
+            return NotFound();
+        }
+
+        return User;
+    }
+
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Post(User newUser)
     {
         await _UsersService.CreateAsync(newUser);
@@ -40,6 +63,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpPut("{id:length(24)}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Update(string id, User updatedUser)
     {
         var User = await _UsersService.GetAsync(id);
@@ -57,6 +81,7 @@ public class UsersController : ControllerBase
     }
 
     [HttpDelete("{id:length(24)}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(string id)
     {
         var User = await _UsersService.GetAsync(id);

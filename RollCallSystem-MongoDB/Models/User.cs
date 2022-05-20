@@ -12,6 +12,8 @@ public class User
     public string Email { get; set; }
     [BsonElement("password")]
     public string Password { get; set; }
+    [BsonElement("salt")]
+    public string Salt { get; set; }
     [BsonElement("firstName")]
     public string FirstName { get; set; }
     [BsonElement("lastName")]
