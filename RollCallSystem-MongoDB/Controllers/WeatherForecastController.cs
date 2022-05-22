@@ -1,13 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Web.Resource;
+using System.Security.Claims;
 
 namespace RollCallSystem_MongoDB.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("[controller]")]
-    [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
+    [Authorize]
     public class WeatherForecastController : ControllerBase
     {
         private static readonly string[] Summaries = new[]
@@ -23,8 +22,11 @@ namespace RollCallSystem_MongoDB.Controllers
         }
 
         [HttpGet(Name = "GetWeatherForecast")]
+        [Authorize(Roles = "Student")]
         public IEnumerable<WeatherForecast> Get()
         {
+            Console.WriteLine(User.FindFirst(ClaimTypes.Role)?.Value);
+
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),
